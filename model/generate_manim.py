@@ -1,7 +1,7 @@
 import google.generativeai as genai
-from smiles_to_molecule import generate_svg_from_smiles
-from drug_info import fetch_drug_information
-from config import GEMINI_API_KEY
+from .smiles_to_molecule import generate_svg_from_smiles
+from .drug_info import fetch_drug_information
+from .config import GEMINI_API_KEY
 
 # Configure Google Gemini API
 genai.configure(api_key=GEMINI_API_KEY)

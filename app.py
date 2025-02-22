@@ -10,6 +10,8 @@ import webbrowser
 
 # Load environment variables
 load_dotenv()
+# Get the backend URL from environment variables with a default fallback.
+BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:3000")
 
 # Global state variables for the GUI
 drug1 = ""
@@ -45,7 +47,7 @@ def view_animation(state):
         "sideEffects": "No specific side effects provided."
     }
     try:
-        response = requests.post("http://localhost:3000/generate-video", json=payload)
+        response = requests.post(f"{BACKEND_URL}/generate-video", json=payload)
         if response.ok:
             data = response.json()
             video_url = data.get("videoUrl")

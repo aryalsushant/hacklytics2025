@@ -6,7 +6,6 @@ from pathlib import Path
 import tempfile
 import botocore.exceptions  # for catching the 404 when object not found
 
-
 # Import your existing modules
 from .smiles_to_molecule import generate_svg_from_smiles
 from .generate_manim import generate_manim_code

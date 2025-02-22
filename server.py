@@ -1,6 +1,7 @@
 import json
 from os import environ as env
 from urllib.parse import quote_plus, urlencode
+import os
 
 from authlib.integrations.flask_client import OAuth
 from dotenv import find_dotenv, load_dotenv
@@ -12,7 +13,6 @@ if ENV_FILE:
 
 app = Flask(__name__)
 app.secret_key = env.get("APP_SECRET_KEY")
-
 
 oauth = OAuth(app)
 
@@ -41,7 +41,12 @@ def home():
 def callback():
     token = oauth.auth0.authorize_access_token()
     session["user"] = token
-    return redirect("/")
+    
+    # Save user data to a file or use a database for persistence
+    with open("user_session.json", "w") as f:
+        json.dump(session["user"], f)
+
+    return redirect("http://localhost:8501")  # Redirects to Streamlit app
 
 
 @app.route("/login")
@@ -54,6 +59,9 @@ def login():
 @app.route("/logout")
 def logout():
     session.clear()
+    # Remove the saved session file for the user
+    if os.path.exists("user_session.json"):
+        os.remove("user_session.json")
     return redirect(
         "https://"
         + env.get("AUTH0_DOMAIN")

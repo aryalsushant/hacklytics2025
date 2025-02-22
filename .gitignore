@@ -1,9 +1,10 @@
-.pyc
+__pycache__/
+*.pyc
 *.iml
 .directory
-.idea
+.idea/
 model/config.py
 .env
 terraform/hacklytics.pem
-terraform/terraform.tfvar
+terraform/terraform.tfvars
 terraform/variables.tf

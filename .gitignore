@@ -4,3 +4,6 @@
 .idea
 model/config.py
 .env
+terraform/hacklytics.pem
+terraform/terraform.tfvar
+terraform/variables.tf

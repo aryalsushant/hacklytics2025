@@ -8,10 +8,10 @@ import botocore.exceptions  # for catching the 404 when object not found
 
 
 # Import your existing modules
-from smiles_to_molecule import generate_svg_from_smiles
-from generate_manim import generate_manim_code
-from drug_info import fetch_drug_information
-from config import (
+from .smiles_to_molecule import generate_svg_from_smiles
+from .generate_manim import generate_manim_code
+from .drug_info import fetch_drug_information
+from .config import (
     R2_ACCESS_KEY,
     R2_SECRET_KEY,
     R2_ENDPOINT_URL,

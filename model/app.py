@@ -14,6 +14,7 @@ from config import (
     R2_ACCESS_KEY,
     R2_SECRET_KEY,
     R2_ENDPOINT_URL,
+    R2_PUBLIC_URL
 )
 
 app = Flask(__name__)
@@ -67,6 +68,13 @@ def generate_video():
         drug1_smiles = data.get("smiles1", "")
         drug2_smiles = data.get("smiles2", "")
         side_effects = data.get("sideEffects", "No specific side effects provided.")
+
+        # Log individual variables
+        print("DEBUG: drug1_name:", drug1_name)
+        print("DEBUG: drug2_name:", drug2_name)
+        print("DEBUG: drug1_smiles:", drug1_smiles)
+        print("DEBUG: drug2_smiles:", drug2_smiles)
+        print("DEBUG: side_effects:", side_effects)
         
         if not all([drug1_name, drug2_name, drug1_smiles, drug2_smiles]):
             return jsonify({"error": "Missing required fields"}), 400
@@ -79,7 +87,7 @@ def generate_video():
         try:
             r2_client.head_object(Bucket="hacklytics", Key=r2_key)
             # If head_object doesn't raise an exception, the file exists
-            existing_video_url = f"{R2_ENDPOINT_URL}/hacklytics/{r2_key}"
+            existing_video_url = f"{R2_PUBLIC_URL}/{r2_key}"
             return jsonify({
                 "videoUrl": existing_video_url,
                 "message": "Video already exists, returning cached version."

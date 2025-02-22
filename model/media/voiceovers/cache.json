@@ -1,0 +1,56 @@
+[
+  {
+    "input_text": "Let's explore the interaction between Claritin and Paracetamol, two commonly used medications.",
+    "input_data": {
+      "input_text": "Let's explore the interaction between Claritin and Paracetamol, two commonly used medications.",
+      "service": "gtts"
+    },
+    "original_audio": "let-s-explore-the-interaction-between-claritin-and-1833343b.mp3",
+    "final_audio": "let-s-explore-the-interaction-between-claritin-and-1833343b.mp3"
+  },
+  {
+    "input_text": "Claritin is an antihistamine used to relieve allergy symptoms such as sneezing, runny nose and itchy eyes.",
+    "input_data": {
+      "input_text": "Claritin is an antihistamine used to relieve allergy symptoms such as sneezing, runny nose and itchy eyes.",
+      "service": "gtts"
+    },
+    "original_audio": "claritin-is-an-antihistamine-used-to-relieve-b6600142.mp3",
+    "final_audio": "claritin-is-an-antihistamine-used-to-relieve-b6600142.mp3"
+  },
+  {
+    "input_text": "Paracetamol is an analgesic and antipyretic, used to treat mild to moderate pain and reduce fever.",
+    "input_data": {
+      "input_text": "Paracetamol is an analgesic and antipyretic, used to treat mild to moderate pain and reduce fever.",
+      "service": "gtts"
+    },
+    "original_audio": "paracetamol-is-an-analgesic-and-antipyretic-used-ae1464aa.mp3",
+    "final_audio": "paracetamol-is-an-analgesic-and-antipyretic-used-ae1464aa.mp3"
+  },
+  {
+    "input_text": "Generally, it's considered safe to take Claritin and Paracetamol together. However, high doses of Paracetamol might lead to rare liver issues.",
+    "input_data": {
+      "input_text": "Generally, it's considered safe to take Claritin and Paracetamol together. However, high doses of Paracetamol might lead to rare liver issues.",
+      "service": "gtts"
+    },
+    "original_audio": "generally-it-s-considered-safe-to-take-claritin-185ace99.mp3",
+    "final_audio": "generally-it-s-considered-safe-to-take-claritin-185ace99.mp3"
+  },
+  {
+    "input_text": "Follow the recommended dosages for both medications, consult a doctor if you have any concerns, and avoid excessive Paracetamol use.",
+    "input_data": {
+      "input_text": "Follow the recommended dosages for both medications, consult a doctor if you have any concerns, and avoid excessive Paracetamol use.",
+      "service": "gtts"
+    },
+    "original_audio": "follow-the-recommended-dosages-for-both-85060c7b.mp3",
+    "final_audio": "follow-the-recommended-dosages-for-both-85060c7b.mp3"
+  },
+  {
+    "input_text": "Always consult your doctor or pharmacist for personalized medical advice.",
+    "input_data": {
+      "input_text": "Always consult your doctor or pharmacist for personalized medical advice.",
+      "service": "gtts"
+    },
+    "original_audio": "always-consult-your-doctor-or-pharmacist-for-0e13a7df.mp3",
+    "final_audio": "always-consult-your-doctor-or-pharmacist-for-0e13a7df.mp3"
+  }
+]

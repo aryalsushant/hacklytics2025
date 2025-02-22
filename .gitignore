@@ -14,3 +14,5 @@ model/config.py
 terraform/hacklytics.pem
 terraform/terraform.tfvars
 terraform/variables.tf
+
+.env

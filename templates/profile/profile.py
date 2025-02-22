@@ -16,3 +16,11 @@ with col2:
 
 if st.button("Save Profile"):
     st.success("Profile saved successfully!")
+
+# Button to navigate back to the Home (search) page
+if st.button("Home"):
+    # Use the absolute URL for your search page on port 8501
+    st.markdown(
+        '<meta http-equiv="refresh" content="0; url=http://localhost:8502" />',
+        unsafe_allow_html=True
+    )

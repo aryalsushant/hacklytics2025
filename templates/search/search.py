@@ -1,6 +1,5 @@
 import streamlit as st
 
-# Streamlit UI for Medicine Interaction Checker
 st.set_page_config(page_title="Medicine Interaction Checker", layout="centered")
 
 st.title("Medicine Interaction Checker")
@@ -14,7 +13,14 @@ if st.button("See Interactions"):
     if medicine_name:
         st.success(f"Checking interactions for {medicine_name}...")
         st.info("Generating video description of interactions...")
-        # Placeholder for video display (this will be updated once the backend is ready)
-        st.video("https://www.example.com/sample-video.mp4")  # Replace with dynamically generated video link
+        st.video("https://www.example.com/sample-video.mp4")  # Replace with your video link
     else:
         st.error("Please enter a medicine name to check interactions.")
+
+# Button to navigate to the Profile page
+if st.button("Profile"):
+    # Use the absolute URL for your profile page on port 8502
+    st.markdown(
+        '<meta http-equiv="refresh" content="0; url=http://localhost:8501" />',
+        unsafe_allow_html=True
+    )

@@ -31,6 +31,7 @@ r2_client = boto3.client(
 def render_manim_script(script_filename, scene_name="DrugInteraction", output_filename="interaction.mp4"):
     """
     Renders a Manim script and returns the path to the generated video.
+    Note: The '--disable_preview' flag is added to avoid errors on headless servers.
     """
     import subprocess
     
@@ -40,19 +41,23 @@ def render_manim_script(script_filename, scene_name="DrugInteraction", output_fi
         script_filename,
         scene_name,
         "-o",
-        output_filename
+        output_filename,
+        "--disable_preview"  # Disable automatic previewing
     ]
     
     try:
+        print("DEBUG: Running command:", " ".join(cmd))
         subprocess.run(cmd, check=True)
-
-        # Manim's default output location
+        # Manim's default output location:
         media_dir = Path("media/videos") / Path(script_filename).stem / "480p15"
         output_path = media_dir / output_filename
         
         if output_path.exists():
+            print("DEBUG: Video file exists at:", output_path)
             return str(output_path)
-        return None
+        else:
+            print("DEBUG: Video file not found at expected location:", output_path)
+            return None
     except subprocess.CalledProcessError as e:
         print(f"Manim rendering failed: {e}")
         return None
@@ -95,7 +100,6 @@ def generate_video():
         except botocore.exceptions.ClientError as e:
             # If a 404 error, object doesn't exist => we generate a new one
             if e.response['Error']['Code'] != "404":
-                # Some other error happened
                 return jsonify({"error": f"Failed checking object: {str(e)}"}), 500
         
         # 2. Otherwise, we proceed to generate a new video
@@ -107,12 +111,15 @@ def generate_video():
             drug2_svg_path = temp_dir / f"{drug2_name.lower()}.svg"
             
             try:
-                generate_svg_from_smiles(drug1_smiles, str(drug1_svg_path))
+                print("DEBUG: Generating SVG for", drug1_name)
+                generate_svg_from_molecules = generate_svg_from_smiles(drug1_smiles, str(drug1_svg_path))
+                print("DEBUG: Generating SVG for", drug2_name)
                 generate_svg_from_smiles(drug2_smiles, str(drug2_svg_path))
             except Exception as e:
                 return jsonify({"error": f"SVG generation failed: {str(e)}"}), 500
 
             # Generate Manim script
+            print("DEBUG: Generating Manim script")
             manim_script = generate_manim_code(
                 str(drug1_svg_path),
                 str(drug2_svg_path),
@@ -130,6 +137,7 @@ def generate_video():
                 f.write(manim_script)
 
             # Render Manim video
+            print("DEBUG: Rendering video with Manim")
             video_path = render_manim_script(
                 str(script_path),
                 scene_name="DrugInteraction",
@@ -141,6 +149,7 @@ def generate_video():
 
             # 3. Upload the new video to R2
             try:
+                print("DEBUG: Uploading video to R2")
                 r2_client.upload_file(
                     video_path,
                     "hacklytics",  # Your bucket name
@@ -165,6 +174,7 @@ def generate_video():
                     os.remove(video_path)
 
     except Exception as e:
+        print("DEBUG: Exception in generate_video:", e)
         return jsonify({"error": f"Video generation failed: {str(e)}"}), 500
 
 if __name__ == '__main__':

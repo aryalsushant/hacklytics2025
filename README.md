@@ -200,5 +200,5 @@ This project is licensed under the **MIT License**.
 
 ## 👥 Team
 
-🚀 **[Your Team Member Names]**  
+🚀 **[DrugLytics]**  
 💡 **Built at Hacklytics 2025**

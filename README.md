@@ -1,6 +1,6 @@
 # DrugLytics
 
-## 🏆 Hacklytics 2025 Submission | Healthcare, GenAI, and AI for Education
+## 🏆 Hacklytics 2025 Submission | Transforming Healthcare Education using Data Science and AI | 
 
 A **GenAI-powered application** that helps users manage the risks of **drug-drug interactions** and **allergic reactions** through a **personalized AI assistant** that generates **text summaries** and **animated videos** explaining potential risks.
 

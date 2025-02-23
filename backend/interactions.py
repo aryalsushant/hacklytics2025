@@ -59,7 +59,7 @@ def get_interaction(state, interactions_collection):
             # st.write(f"Side Effects: {side_effects}")
         else:
             state.result = f"No interaction data found between {drug_1} and {drug_2}"
-            st.warning(state.result)  # Display warning in Streamlit UI
+            #st.warning(state.result)  # Display warning in Streamlit UI
         
     except Exception as e:
         state.result = f"Error: {str(e)}"

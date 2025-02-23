@@ -22,7 +22,7 @@ if db is not None:
     interactions_collection = db[collection_name]
 
 # Streamlit UI setup
-st.set_page_config(page_title="Medicine Interaction Checker", layout="centered")
+st.set_page_config(page_title="Medicine Interaction Checker", layout="wide")
 
 # Custom CSS: Adjust input, hide helper text, and add orange border to interaction container
 st.markdown("""
@@ -77,7 +77,7 @@ components.html("""
 """, height=0)
 
 # Page Title
-st.markdown('<div style="font-size:26px; font-weight:bold; text-align:center; margin-bottom:15px;">Medicine Interaction Checker</div>', unsafe_allow_html=True)
+st.title("Medicine Interaction Checker")
 
 # Input field & button layout in a responsive design
 col1, col2 = st.columns([5, 1])

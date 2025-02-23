@@ -34,8 +34,8 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Initialize Streamlit app
-st.title("LLM Chatbot using OpenAI")
+# Initialize Streamlit app with a robot emoji in the title
+st.title("🤖 LLM Chatbot using OpenAI")
 
 # Session state to store chat history
 if "messages" not in st.session_state:
@@ -57,9 +57,9 @@ system_prompt = {
     )
 }
 
-# Add system message if not already present
-if not st.session_state["messages"]:
-    st.session_state["messages"].append(system_prompt)
+# # Add system message if not already present
+# if not st.session_state["messages"]:
+#     st.session_state["messages"].append(system_prompt)
 
 # User input
 user_input = st.chat_input("Enter two drug names to check their interaction...")
@@ -86,3 +86,4 @@ if user_input:
     
     # Add bot response to chat history
     st.session_state["messages"].append({"role": "assistant", "content": bot_reply})
+

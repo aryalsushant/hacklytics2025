@@ -58,19 +58,15 @@ with col2:
         height=200
     )
 
-# Save profile
 if st.button("Save Profile"):
-    if medications:
-        # Update session state
-        meds_list = [med.strip() for med in medications.split('\n') if med.strip()]
-        allergies_list = [allergy.strip() for allergy in allergies.split('\n') if allergy.strip()]
-        
-        st.session_state.medications = meds_list
-        st.session_state.allergies = allergies_list
-        
-        # Save to file
-        save_profile(meds_list, allergies_list)
-        
-        st.success("Profile saved successfully!")
-    else:
-        st.error("Please enter at least one medication.")
+    # Split and clean the inputs; allow empty lists
+    meds_list = [med.strip() for med in medications.split('\n') if med.strip()]
+    allergies_list = [allergy.strip() for allergy in allergies.split('\n') if allergy.strip()]
+    
+    st.session_state.medications = meds_list
+    st.session_state.allergies = allergies_list
+    
+    # Save to file regardless of whether the list is empty
+    save_profile(meds_list, allergies_list)
+    
+    st.success("Profile saved successfully!")

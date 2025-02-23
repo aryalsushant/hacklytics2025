@@ -32,8 +32,14 @@ def render_manim_script(script_filename, scene_name="DrugInteraction", output_fi
     """
     Renders a Manim script and returns the path to the generated video.
     Note: The '--disable_preview' flag is added to avoid errors on headless servers.
+    We set the working directory to the project root so that Manim creates the output
+    in the expected location.
     """
     import subprocess
+    from pathlib import Path
+
+    # Set project root—adjust this path if necessary.
+    project_root = Path("/home/ec2-user/hacklytics2025/model")
     
     cmd = [
         "manim",
@@ -47,16 +53,22 @@ def render_manim_script(script_filename, scene_name="DrugInteraction", output_fi
     
     try:
         print("DEBUG: Running command:", " ".join(cmd))
-        subprocess.run(cmd, check=True)
-        # Manim's default output location:
-        media_dir = Path("media/videos") / Path(script_filename).stem / "480p15"
+        # Run command with cwd set to project_root
+        subprocess.run(cmd, check=True, cwd=str(project_root))
+        
+        # Manim's default output location is relative to project_root.
+        # It creates a folder named after the script's stem inside media/videos.
+        media_dir = project_root / "media/videos" / Path(script_filename).stem / "480p15"
         output_path = media_dir / output_filename
+        print("DEBUG: Expecting video at:", output_path)
         
         if output_path.exists():
-            print("DEBUG: Video file exists at:", output_path)
+            print("DEBUG: Found video file at:", output_path)
             return str(output_path)
         else:
-            print("DEBUG: Video file not found at expected location:", output_path)
+            print("DEBUG: Video file not found at expected location. Listing contents of 'media/videos':")
+            for path in (project_root / "media/videos").rglob("*"):
+                print(path)
             return None
     except subprocess.CalledProcessError as e:
         print(f"Manim rendering failed: {e}")
@@ -112,7 +124,7 @@ def generate_video():
             
             try:
                 print("DEBUG: Generating SVG for", drug1_name)
-                generate_svg_from_molecules = generate_svg_from_smiles(drug1_smiles, str(drug1_svg_path))
+                generate_svg_from_smiles(drug1_smiles, str(drug1_svg_path))
                 print("DEBUG: Generating SVG for", drug2_name)
                 generate_svg_from_smiles(drug2_smiles, str(drug2_svg_path))
             except Exception as e:

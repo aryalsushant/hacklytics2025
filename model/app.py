@@ -4,9 +4,11 @@ import os
 import boto3
 from pathlib import Path
 import tempfile
-import botocore.exceptions  # for catching the 404 when object not found
+import botocore.exceptions  # for catching 404 errors
+import subprocess
+import time
 
-# Import your existing modules
+# Import your modules for SVG and Manim code generation
 from .smiles_to_molecule import generate_svg_from_smiles
 from .generate_manim import generate_manim_code
 from .drug_info import fetch_drug_information
@@ -20,7 +22,7 @@ from .config import (
 app = Flask(__name__)
 CORS(app)
 
-# Initialize R2 client
+# Initialize R2 client (Cloudflare R2 compatible S3 client)
 r2_client = boto3.client(
     "s3",
     endpoint_url=R2_ENDPOINT_URL,
@@ -28,12 +30,15 @@ r2_client = boto3.client(
     aws_secret_access_key=R2_SECRET_KEY
 )
 
-def render_manim_script(script_filename, scene_name="DrugInteraction", output_filename="interaction.mp4"):
-    import subprocess
-    from pathlib import Path
+# Define the project root where the fixed files will be stored.
+PROJECT_ROOT = Path("/home/ec2-user/hacklytics2025/model")
 
-    # Set project root as working directory.
-    project_root = Path("/home/ec2-user/hacklytics2025/model")
+def render_manim_script(script_filename, scene_name="DrugInteraction", output_filename="drug_interaction.mp4"):
+    """
+    Runs Manim with the given script and fixed output filename.
+    The working directory is set to PROJECT_ROOT so that output files are created predictably.
+    '--disable_preview' avoids xdg-open issues on headless servers.
+    """
     cmd = [
         "manim",
         "-pql",
@@ -45,22 +50,22 @@ def render_manim_script(script_filename, scene_name="DrugInteraction", output_fi
     ]
     try:
         print("DEBUG: Running command:", " ".join(cmd))
-        subprocess.run(cmd, check=True, cwd=str(project_root))
-        media_dir = project_root / "media/videos" / Path(script_filename).stem / "480p15"
+        subprocess.run(cmd, check=True, cwd=str(PROJECT_ROOT))
+        # Manim creates its output at:
+        # PROJECT_ROOT/media/videos/<script_stem>/480p15/<output_filename>
+        script_stem = Path(script_filename).stem
+        media_dir = PROJECT_ROOT / "media/videos" / script_stem / "480p15"
         output_path = media_dir / output_filename
         print("DEBUG: Expecting video at:", output_path)
         if output_path.exists():
             print("DEBUG: Found video file at:", output_path)
             return str(output_path)
         else:
-            print("DEBUG: Video file not found. Listing contents of 'media/videos':")
-            for path in (project_root / "media/videos").rglob("*"):
-                print(path)
+            print("DEBUG: Video file not found.")
             return None
     except subprocess.CalledProcessError as e:
-        print(f"Manim rendering failed: {e}")
+        print(f"DEBUG: Manim rendering failed: {e}")
         return None
-
 
 @app.route('/generate-video', methods=['POST'])
 def generate_video():
@@ -74,7 +79,6 @@ def generate_video():
         drug2_smiles = data.get("smiles2", "")
         side_effects = data.get("sideEffects", "No specific side effects provided.")
 
-        # Log input
         print("DEBUG: drug1_name:", drug1_name)
         print("DEBUG: drug2_name:", drug2_name)
         print("DEBUG: drug1_smiles:", drug1_smiles)
@@ -84,25 +88,11 @@ def generate_video():
         if not all([drug1_name, drug2_name, drug1_smiles, drug2_smiles]):
             return jsonify({"error": "Missing required fields"}), 400
 
-        # Construct a unique video filename (you can use a timestamp or UUID for uniqueness)
-        import time
-        unique_part = str(int(time.time()))
-        video_filename = f"{drug1_name.lower()}_{drug2_name.lower()}_{unique_part}_interaction.mp4"
-        r2_key = f"drug_videos/{video_filename}"
+        # Generate a unique key for the upload while keeping local filenames fixed.
+        unique_key = f"{drug1_name.lower()}_{drug2_name.lower()}_{int(time.time())}_interaction.mp4"
+        r2_key = f"drug_videos/{unique_key}"
 
-        # 1. Check if it already exists in R2 (optional if you want caching)
-        try:
-            r2_client.head_object(Bucket="hacklytics", Key=r2_key)
-            existing_video_url = f"{R2_PUBLIC_URL}/{r2_key}"
-            return jsonify({
-                "videoUrl": existing_video_url,
-                "message": "Video already exists, returning cached version."
-            }), 200
-        except botocore.exceptions.ClientError as e:
-            if e.response['Error']['Code'] != "404":
-                return jsonify({"error": f"Failed checking object: {str(e)}"}), 500
-
-        # 2. Generate SVGs in a temporary directory (they don't need to be fixed)
+        # Generate SVGs (in a temporary directory)
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_dir = Path(temp_dir)
             drug1_svg_path = temp_dir / f"{drug1_name.lower()}.svg"
@@ -115,7 +105,7 @@ def generate_video():
             except Exception as e:
                 return jsonify({"error": f"SVG generation failed: {str(e)}"}), 500
 
-            # Generate Manim script
+            # Generate the Manim script using the SVG paths
             print("DEBUG: Generating Manim script")
             manim_script = generate_manim_code(
                 str(drug1_svg_path),
@@ -127,25 +117,22 @@ def generate_video():
             if not manim_script:
                 return jsonify({"error": "Failed to generate Manim script"}), 500
 
-        # 3. Write the generated script to a fixed file in the project root.
-        project_root = Path("/home/ec2-user/hacklytics2025/model")
-        fixed_script_path = project_root / "drug_interaction.py"
+        # Write the generated script to a fixed file in PROJECT_ROOT
+        fixed_script_path = PROJECT_ROOT / "drug_interaction.py"
         with open(fixed_script_path, "w") as f:
             f.write(manim_script)
+        print("DEBUG: Saved Manim script to", fixed_script_path)
 
-        print("DEBUG: Rendering video with Manim using fixed script at:", fixed_script_path)
-        # 4. Render the video; output will be in:
-        #    /home/ec2-user/hacklytics2025/model/media/videos/drug_interaction/480p15/drug_interaction.mp4
+        # Render the video; locally it will always be stored as "drug_interaction.mp4"
         video_path = render_manim_script(
             str(fixed_script_path),
             scene_name="DrugInteraction",
-            output_filename=video_filename  # unique filename we generated
+            output_filename="drug_interaction.mp4"
         )
-
         if not video_path:
             return jsonify({"error": "Video generation failed"}), 500
 
-        # 5. Upload the video to R2
+        # Upload the video to R2 with the unique key
         try:
             print("DEBUG: Uploading video to R2")
             r2_client.upload_file(
@@ -154,7 +141,8 @@ def generate_video():
                 r2_key,
                 ExtraArgs={'ContentType': 'video/mp4'}
             )
-            video_url = f"{R2_ENDPOINT_URL}/hacklytics/{r2_key}"
+            video_url = f"{R2_PUBLIC_URL}/hacklytics/{r2_key}"
+            print("DEBUG: Video generated and uploaded successfully:", video_url)
             return jsonify({
                 "videoUrl": video_url,
                 "message": "Video generated and uploaded successfully"
@@ -162,9 +150,13 @@ def generate_video():
         except Exception as e:
             return jsonify({"error": f"Failed to upload to R2: {str(e)}"}), 500
         finally:
+            # Clean up the local video file
             if video_path and os.path.exists(video_path):
                 os.remove(video_path)
 
     except Exception as e:
         print("DEBUG: Exception in generate_video:", e)
         return jsonify({"error": f"Video generation failed: {str(e)}"}), 500
+
+if __name__ == '__main__':
+    app.run(host="0.0.0.0", port=3000, debug=True)

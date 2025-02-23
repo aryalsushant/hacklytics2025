@@ -1,6 +1,5 @@
-# backend/interactions.py
 import requests
-from taipy.gui import notify
+import streamlit as st
 
 def fetch_smiles(drug_name):
     """Fetch SMILES notation from PubChem API for a given drug name."""
@@ -14,21 +13,22 @@ def fetch_smiles(drug_name):
                 return properties[0].get('CanonicalSMILES')
         return None
     except Exception as e:
-        print(f"Error fetching SMILES for {drug_name}: {e}")
+        st.error(f"Error fetching SMILES for {drug_name}: {e}")
         return None
 
 def get_interaction(state, interactions_collection):
     """Search for a drug interaction in MongoDB and update the state."""
     if interactions_collection is None:
         state.result = "Database connection error. Please check server logs."
-        notify(state, "error", "Database connection error")
+        st.error(state.result)  # Display the error in Streamlit UI
         return
 
     try:
         drug_1 = state.drug1
         drug_2 = state.drug2
         if not drug_1 or not drug_2:
-            notify(state, "error", "Please enter both drug names")
+            state.result = "Please enter both drug names"
+            st.error(state.result)  # Display the error in Streamlit UI
             return
 
         # Fetch SMILES for both drugs
@@ -41,7 +41,7 @@ def get_interaction(state, interactions_collection):
 
         if not smiles1 or not smiles2:
             state.result = "Could not retrieve SMILES for one or both drugs."
-            notify(state, "error", state.result)
+            st.error(state.result)  # Display the error in Streamlit UI
             return
 
         # Search for interaction in MongoDB
@@ -55,13 +55,12 @@ def get_interaction(state, interactions_collection):
         if interaction:
             side_effects = interaction['Top_5_Side_Effects']
             state.result = f"Interaction found between {drug_1} and {drug_2}:\n{side_effects}"
-            notify(state, "success", "Interaction found!")
+            # st.success(f"Interaction found between {drug_1} and {drug_2}!")  # Display success in Streamlit UI
+            # st.write(f"Side Effects: {side_effects}")
         else:
             state.result = f"No interaction data found between {drug_1} and {drug_2}"
-            notify(state, "warning", "No interaction found")
+            #st.warning(state.result)  # Display warning in Streamlit UI
         
-        print("Database search result:", state.result)
     except Exception as e:
         state.result = f"Error: {str(e)}"
-        notify(state, "error", f"Error: {str(e)}")
-        print("Error during database search:", state.result)
+        st.error(f"Error: {str(e)}")  # Display the error in Streamlit UI

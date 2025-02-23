@@ -155,7 +155,6 @@ def check_interactions(medicine_name):
 
         if hasattr(state, 'result'):
             result = state.result
-            print (result);
             
             if "Interaction found" in result:
                 raw_side_effects = re.findall(r'\d+:\s*([^;]+)', result)
@@ -165,8 +164,7 @@ def check_interactions(medicine_name):
                 st.markdown(f"""
                     <div class="interaction-container">
                         <h3>Interaction Found</h3>
-                        <p><strong>{medicine_name} and {med}</strong></p>
-                        <p><strong>Side Effects Summary:</strong></p>
+                        <p><strong>{medicine_name} and {med} Side Effects</strong></p>
                         <p>{summary}</p>
                     </div>
                 """, unsafe_allow_html=True)

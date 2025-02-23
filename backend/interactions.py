@@ -55,8 +55,8 @@ def get_interaction(state, interactions_collection):
         if interaction:
             side_effects = interaction['Top_5_Side_Effects']
             state.result = f"Interaction found between {drug_1} and {drug_2}:\n{side_effects}"
-            st.success(f"Interaction found between {drug_1} and {drug_2}!")  # Display success in Streamlit UI
-            st.write(f"Side Effects: {side_effects}")
+            # st.success(f"Interaction found between {drug_1} and {drug_2}!")  # Display success in Streamlit UI
+            # st.write(f"Side Effects: {side_effects}")
         else:
             state.result = f"No interaction data found between {drug_1} and {drug_2}"
             st.warning(state.result)  # Display warning in Streamlit UI
